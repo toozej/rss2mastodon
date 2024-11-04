@@ -1,6 +1,6 @@
 # runtime image
 FROM scratch
 # Copy our static executable.
-COPY golang-starter /go/bin/golang-starter
+COPY rss2mastodon /go/bin/rss2mastodon
 # Run the binary.
-ENTRYPOINT ["/go/bin/golang-starter"]
+ENTRYPOINT ["/go/bin/rss2mastodon"]

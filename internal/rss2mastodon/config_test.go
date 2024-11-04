@@ -1,4 +1,4 @@
-package starter
+package rss2mastodon
 
 import (
 	"os"
@@ -18,21 +18,28 @@ func TestGetEnvVars(t *testing.T) {
 		{
 			name: "Valid environment variables",
 			envVars: map[string]string{
-				"USERNAME": "valid-username",
+				"MASTODON_URL":   "valid-url",
+				"MASTODON_TOKEN": "valid-token",
 			},
 			expectError: false,
 		},
 		{
-			name:            "Missing USERNAME",
-			envVars:         map[string]string{"OTHERTHING": "https://example.com"},
+			name:            "Missing MASTODON_URL",
+			envVars:         map[string]string{"MASTODON_TOKEN": "valid-token"},
 			expectError:     true,
-			expectErrorText: "username must be provided",
+			expectErrorText: "mastodon_url must be provided",
+		},
+		{
+			name:            "Missing MASTODON_TOKEN",
+			envVars:         map[string]string{"MASTODON_URL": "valid-url"},
+			expectError:     true,
+			expectErrorText: "mastodon_token must be provided",
 		},
 		{
 			name:            "No environment variables",
 			envVars:         map[string]string{},
 			expectError:     true,
-			expectErrorText: "username must be provided",
+			expectErrorText: "mastodon_url must be provided",
 		},
 	}
 

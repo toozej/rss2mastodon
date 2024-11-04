@@ -9,18 +9,18 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/automaxprocs/maxprocs"
 
-	"github.com/toozej/golang-starter/internal/starter"
-	"github.com/toozej/golang-starter/pkg/man"
-	"github.com/toozej/golang-starter/pkg/version"
+	"github.com/toozej/rss2mastodon/internal/rss2mastodon"
+	"github.com/toozej/rss2mastodon/pkg/man"
+	"github.com/toozej/rss2mastodon/pkg/version"
 )
 
 var rootCmd = &cobra.Command{
-	Use:              "golang-starter",
-	Short:            "golang starter examples",
-	Long:             `Golang starter template using cobra and viper modules`,
+	Use:              "rss2mastodon",
+	Short:            "Watches a RSS feed for new posts, then announces them on Mastodon",
+	Long:             `Watches a RSS feed for new posts, then announces them on Mastodon`,
 	Args:             cobra.ExactArgs(0),
 	PersistentPreRun: rootCmdPreRun,
-	Run:              starter.Run,
+	Run:              rss2mastodon.Run,
 }
 
 func rootCmdPreRun(cmd *cobra.Command, args []string) {
@@ -47,6 +47,8 @@ func init() {
 
 	// create rootCmd-level flags
 	rootCmd.PersistentFlags().BoolP("debug", "d", false, "Enable debug-level logging")
+	rootCmd.Flags().StringP("feed-url", "f", "", "RSS feed URL to watch")
+	rootCmd.Flags().IntP("interval", "i", 60, "Interval in minutes to check the RSS feed")
 
 	// add sub-commands
 	rootCmd.AddCommand(

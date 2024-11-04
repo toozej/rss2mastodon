@@ -1,4 +1,4 @@
-package starter
+package rss2mastodon
 
 import (
 	"fmt"
@@ -22,10 +22,15 @@ func getEnvVars() error {
 	// Enable reading environment variables
 	viper.AutomaticEnv()
 
-	// get username from Viper
-	username = viper.GetString("USERNAME")
-	if username == "" {
-		return fmt.Errorf("username must be provided")
+	// get mastodon_url from Viper
+	mastodon_url := viper.GetString("MASTODON_URL")
+	if mastodon_url == "" {
+		return fmt.Errorf("mastodon_url must be provided")
+	}
+
+	mastodon_token := viper.GetString("MASTODON_TOKEN")
+	if mastodon_token == "" {
+		return fmt.Errorf("mastodon_token must be provided")
 	}
 
 	return nil

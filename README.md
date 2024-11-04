@@ -1,48 +1,76 @@
-# golang-starter
-Golang starter template
+# rss2mastodon
 
-## features of this starter template
-- follows common Golang best practices in terms of repo/project layout, and includes explanations of what goes where in README files
-- Cobra library for CLI handling, and Viper library for reading config files already plugged in and ready to expand upon
-- Goreleaser to build Docker images and most standard package types across Linux, MacOS and Windows
-    - also includes auto-generated manpages and shell autocompletions
-- Makefile for easy building, deploying, testing, updating, etc. both Dockerized and using locally installed Golang toolchain
-- docker-compose project for easily hosting built Dockerized Golang project, with optional support for Golang web services
-- scripts to make using the starter template easy, and to update the Golang version when a new one comes out
-- built-in security scans, vulnerability warnings and auto-updates via Dependabot and GitHub Actions
-- auto-generated documentation
-- pre-commit hooks for ensuring formatting, linting, security checks, etc.
+rss2mastodon is a CLI tool that monitors an RSS feed for new posts and automatically posts updates to a specified Mastodon instance. This application is designed for easy configuration and seamless integration, making it simple to announce new blog posts or content updates on your Mastodon account.
 
-## changes required to use this as a starter template
-- generate a GitHub fine-grained access token from https://github.com/settings/tokens?type=beta (used in repo as "GITHUB_TOKEN" and in GitHub Actions Secrets as "GH_TOKEN") with the following read/write permissions:
-    - actions
-    - attestations
-    - code scanning alerts
-    - commit statuses
-    - contents
-    - dependabot alerts
-    - dependabot secrets
-    - deployments
-    - environments
-    - issues
-    - pages
-    - pull requests
-    - repository security advisories
-    - secret scanning alerts
-    - secrets
-    - webhooks
-    - workflows
-- run `use_starter.sh` script to rename project files, generate Cosign artifacts, gather and upload secrets to GitHub Actions, etc.
-    - run `./scripts/use_starter.sh $NEW_PROJECT_NAME_GOES_HERE`
-    - to rename with a different GitHub username `./scripts/use_starter.sh $NEW_PROJECT_NAME_GOES_HERE $GITHUB_USERNAME_GOES_HERE`
-- set up new repository in quay.io web console
-    - (DockerHub and GitHub Container Registry do this automatically on first push/publish)
-    - name must match Git repo name
-    - grant robot user with username stored in QUAY_USERNAME "write" permissions (your quay.io account should already have admin permissions)
-- set built packages visibility in GitHub packages to public
-    - navigate to https://github.com/users/$USERNAME/packages/container/$REPO/settings
-    - scroll down to "Danger Zone"
-    - change visibility to public
+## Features
+- Periodically checks an RSS feed for new or updated posts.
+- Posts updates to a configured Mastodon server.
+- Stores previously tooted posts in an SQLite database to avoid reposting.
+- Configurable check interval and customizable toot content.
+- Debug mode for more detailed logging.
 
-## changes required to update golang version
-- run `./scripts/update_golang_version.sh $NEW_VERSION_GOES_HERE`
+## Installation
+### Prerequisites
+- Go (version 1.17 or later)
+- SQLite for database management
+- Make
+
+### Steps
+1.	Clone the repository:
+```bash
+git clone https://github.com/toozej/rss2mastodon.git
+cd rss2mastodon
+```
+
+2.	Build the executable:
+`make build`
+
+## Usage
+1.	Set Environment Variables:
+    Create a .env file in the root of your project or set the required environment variables directly:
+
+    ```
+    MASTODON_URL=https://your-mastodon-instance
+    MASTODON_TOKEN=your-access-token
+    FEED_URL=https://example.com/rss
+    ```
+
+    Alternatively, you can provide the feed-url and interval as command-line flags or environment variables.
+2.	Run the application:
+    ```bash
+    ./rss2mastodon --feed-url "https://example.com/rss" --interval 60
+    ```
+
+    `--feed-url`: The URL of the RSS feed to monitor.
+    `--interval`: The interval in minutes for checking the RSS feed (default is 60 minutes).
+
+3. Enable Debug Mode:
+Use the --debug flag to enable debug-level logging for troubleshooting.
+```bash
+./rss2mastodon --debug
+```
+
+
+## Major Components
+### Command Structure (cmd/rss2mastodon/root.go)
+- Defines the main rss2mastodon command and its subcommands (man and version).
+- Sets up CLI flags and binds them to configuration via Viper.
+
+### Configuration (internal/rss2mastodon/config.go)
+- Loads configuration from environment variables and the .env file if present.
+- Ensures required variables (MASTODON_URL, MASTODON_TOKEN) are set.
+
+### RSS Handling (internal/rss/rss.go)
+- Fetches and parses the RSS feed.
+- Provides hashing functionality to detect changes in post content.
+
+### Mastodon Integration (internal/mastodon/mastodon.go)
+- Constructs toot content based on the post title and content.
+- Sends HTTP requests to post updates on the Mastodon instance.
+
+### Database Management (internal/db/db.go)
+- Manages an SQLite database to store and check previously tooted posts.
+- Functions for initializing the database, storing, and verifying post changes.
+
+## update golang version
+- `make update-golang-version`

@@ -103,29 +103,6 @@ generate_cosign_keys() {
     echo "COSIGN_PASSWORD=${COSIGN_PASSPHRASE}" >> .env || handle_error "Failed to write cosign passphrase to .env."
 }
 
-# Helper function to store secrets in 1Password
-store_in_1password() {
-    echo "Storing secrets in 1Password..."
-
-    # Check if the item exists; if not, create it
-    if ! op item get "${NEW_PROJECT_NAME}" &>/dev/null; then
-        # Create the 1Password item with the project name
-        op item create --category login --title "${NEW_PROJECT_NAME}" \
-            --url "https://github.com/${GITHUB_USERNAME}/${NEW_PROJECT_NAME}" \
-            --tags "Projects/${NEW_PROJECT_NAME}" || handle_error "Failed to create 1Password item."
-    fi
-
-    # Update the 1Password item with generated secrets
-    op item edit "${NEW_PROJECT_NAME}" \
-        "Cosign.Passphrase[password]=${COSIGN_PASSPHRASE}" \
-        "Cosign.Private Key[file]=${NEW_PROJECT_NAME}.key" \
-        "Cosign.Public Key[file]=${NEW_PROJECT_NAME}.pub" \
-        "GH PAT[password]=${GITHUB_TOKEN}" \
-        || handle_error "Failed to update 1Password item with secrets."
-
-    echo "Secrets successfully stored in 1Password."
-}
-
 # --- Main Script ---
 
 # Validate script arguments
@@ -183,7 +160,10 @@ fetch_credentials
 generate_cosign_keys
 
 # Store generated secrets in 1Password
-store_in_1password
+./scripts/upload_secrets_to_1password.sh secrets "${NEW_PROJECT_NAME}"
+
+# Store EnvFile in 1Password
+./scripts/upload_secrets_to_1password.sh envfile "${NEW_PROJECT_NAME}"
 
 # Call the external secrets upload script
 ./scripts/upload_secrets_to_github.sh "${NEW_PROJECT_NAME}"

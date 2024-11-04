@@ -1,10 +1,11 @@
-module github.com/toozej/golang-starter
+module github.com/toozej/rss2mastodon
 
 go 1.23
 
 require github.com/spf13/viper v1.19.0
 
 require (
+	github.com/mattn/go-sqlite3 v1.14.24
 	github.com/muesli/mango-cobra v1.2.0
 	github.com/muesli/roff v0.1.0
 	github.com/sirupsen/logrus v1.9.3
@@ -13,7 +14,7 @@ require (
 )
 
 require (
-	github.com/fsnotify/fsnotify v1.7.0 // indirect
+	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
