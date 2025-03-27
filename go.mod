@@ -2,7 +2,7 @@ module github.com/toozej/rss2mastodon
 
 go 1.23
 
-require github.com/spf13/viper v1.20.0
+require github.com/spf13/viper v1.20.1
 
 require (
 	github.com/mattn/go-sqlite3 v1.14.24
