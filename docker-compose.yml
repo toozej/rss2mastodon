@@ -1,5 +1,4 @@
 ---
-version: "3"
 services:
   rss2mastodon:
     container_name: rss2mastodon
