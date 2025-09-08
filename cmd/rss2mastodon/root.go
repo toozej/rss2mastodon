@@ -1,3 +1,5 @@
+// Package cmd contains the command-line interface implementation for the rss2mastodon application.
+// It defines the root Cobra command and its execution logic.
 package cmd
 
 import (
@@ -6,8 +8,6 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-	"go.uber.org/automaxprocs/maxprocs"
 
 	"github.com/toozej/rss2mastodon/internal/rss2mastodon"
 	"github.com/toozej/rss2mastodon/pkg/man"
@@ -24,15 +24,19 @@ var rootCmd = &cobra.Command{
 }
 
 func rootCmdPreRun(cmd *cobra.Command, args []string) {
-	if err := viper.BindPFlags(cmd.Flags()); err != nil {
-		return
+	// rootCmdPreRun is the persistent pre-run function for the root command.
+	// It configures logging level based on the debug flag.
+	debug, err := cmd.PersistentFlags().GetBool("debug")
+	if err != nil {
+		log.Fatal(err)
 	}
-	if viper.GetBool("debug") {
+	if debug {
 		log.SetLevel(log.DebugLevel)
 	}
 }
 
 func Execute() {
+	// Execute runs the root command and handles any execution errors by printing them and exiting with status 1.
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
@@ -40,15 +44,11 @@ func Execute() {
 }
 
 func init() {
-	_, err := maxprocs.Set()
-	if err != nil {
-		log.Error("Error setting maxprocs: ", err)
-	}
-
 	// create rootCmd-level flags
 	rootCmd.PersistentFlags().BoolP("debug", "d", false, "Enable debug-level logging")
 	rootCmd.Flags().StringP("feed-url", "f", "", "RSS feed URL to watch")
 	rootCmd.Flags().IntP("interval", "i", 60, "Interval in minutes to check the RSS feed")
+	rootCmd.Flags().StringP("category", "c", "", "Category to filter URL last segment")
 
 	// add sub-commands
 	rootCmd.AddCommand(

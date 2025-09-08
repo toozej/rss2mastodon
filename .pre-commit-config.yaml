@@ -4,7 +4,7 @@ minimum_pre_commit_version: "1.15"
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v6.0.0
     hooks:
       - id: check-yaml
         name: Check for valid YAML syntax in repo
@@ -54,7 +54,7 @@ repos:
 
   # Golang formatting, linting, security and static analysis
   - repo: https://github.com/tekwizely/pre-commit-golang
-    rev: v1.0.0-rc.1
+    rev: v1.0.0-rc.2
     hooks:
       - id: go-sec-mod
       - id: go-staticcheck-mod
@@ -68,13 +68,13 @@ repos:
 
   # run shellcheck on Bash scripts
   - repo: https://github.com/koalaman/shellcheck-precommit
-    rev: v0.10.0
+    rev: v0.11.0
     hooks:
       - id: shellcheck
 
   # lint Dockerfile
   - repo: https://github.com/hadolint/hadolint
-    rev: v2.13.1-beta
+    rev: v2.13.1
     hooks:
       - id: hadolint-docker
         args: ["--ignore", "DL3007"]
@@ -88,7 +88,7 @@ repos:
 
   # goreleaser config check
   - repo: https://github.com/trussworks/pre-commit-hooks
-    rev: v1.1.1
+    rev: v2.0.0
     hooks:
       - id: goreleaser-check
 

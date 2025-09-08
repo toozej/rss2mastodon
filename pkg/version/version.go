@@ -1,3 +1,5 @@
+// Package version provides version and build information for the rss2mastodon application.
+// The version information is typically populated at build time by the compiler.
 package version
 
 import (
@@ -16,7 +18,7 @@ var (
 	Builder = ""
 )
 
-// Info holds build information
+// Info holds build information including version, commit, branch, build time, and builder.
 type Info struct {
 	Commit  string
 	Version string
@@ -25,7 +27,7 @@ type Info struct {
 	Builder string
 }
 
-// Get creates an initialized Info object
+// Get creates an initialized Info object with current version information.
 func Get() (Info, error) {
 	return Info{
 		Commit:  Commit,
@@ -36,7 +38,7 @@ func Get() (Info, error) {
 	}, nil
 }
 
-// Command creates version command
+// Command creates a cobra command for displaying version information.
 func Command() *cobra.Command {
 	return &cobra.Command{
 		Use:   "version",

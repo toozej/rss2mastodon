@@ -1,5 +1,11 @@
 # rss2mastodon
 
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/toozej/rss2mastodon)
+[![Go Report Card](https://goreportcard.com/badge/github.com/toozej/rss2mastodon)](https://goreportcard.com/report/github.com/toozej/rss2mastodon)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/toozej/rss2mastodon/cicd.yaml)
+![Docker Pulls](https://img.shields.io/docker/pulls/toozej/rss2mastodon)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/toozej/rss2mastodon/total)
+
 rss2mastodon is a CLI tool that monitors an RSS feed for new posts and automatically posts updates to a specified Mastodon instance. This application is designed for easy configuration and seamless integration, making it simple to announce new blog posts or content updates on your Mastodon account.
 
 ## Features

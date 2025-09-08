@@ -5,8 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/spf13/viper"
 	"github.com/toozej/rss2mastodon/internal/rss"
+	"github.com/toozej/rss2mastodon/pkg/config"
 )
 
 // Test toot content generation for "Thoughts" posts
@@ -73,12 +73,14 @@ func TestTootPost(t *testing.T) {
 			mockServer, mockServerURL := MockServer(tt.statusCode)
 			defer mockServer.Close()
 
-			// Set up environment variables
-			viper.Set("mastodon_url", mockServerURL)
-			viper.Set("mastodon_token", "fake-token")
+			// Set up config
+			conf := config.Config{
+				MastodonURL:         mockServerURL,
+				MastodonAccessToken: "fake-token",
+			}
 
 			// Run the function to test
-			err := TootPost("Test toot content")
+			err := TootPost(conf.MastodonURL, conf.MastodonAccessToken, "Test toot content")
 
 			// Check if we expect an error or not
 			if (err != nil) != tt.expectedError {

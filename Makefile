@@ -33,7 +33,7 @@ else
 	OPENER=open
 endif
 
-.PHONY: all vet test build verify run up down distroless-build distroless-run local local-vet local-test local-cover local-run local-release-test local-release local-sign local-verify local-release-verify install get-cosign-pub-key docker-login pre-commit-install pre-commit-run pre-commit pre-reqs update-golang-version upload-secrets-to-gh upload-secrets-envfile-to-1pass docs docs-generate docs-serve clean help
+.PHONY: all vet test build verify run up down local local-vet local-test local-cover local-run local-release-test local-release local-sign local-verify local-release-verify install get-cosign-pub-key docker-login pre-commit-install pre-commit-run pre-commit pre-reqs update-golang-version upload-secrets-to-gh upload-secrets-envfile-to-1pass docs clean help
 
 all: vet pre-commit clean test build verify run ## Run default workflow via Docker
 local: local-update-deps local-vendor local-vet pre-commit clean local-test local-cover local-build local-sign local-verify local-run ## Run default workflow using locally installed Golang toolchain
@@ -41,13 +41,13 @@ local-release-verify: local-release local-sign local-verify ## Release and verif
 pre-reqs: pre-commit-install ## Install pre-commit hooks and necessary binaries
 
 vet: ## Run `go vet` in Docker
-	docker build --target vet -f $(CURDIR)/Dockerfile -t toozej/rss2mastodon:latest . 
+	docker build --target vet -f $(CURDIR)/Dockerfile.distroless -t toozej/rss2mastodon:latest . 
 
 test: ## Run `go test` in Docker
-	docker build --progress=plain --target test -f $(CURDIR)/Dockerfile -t toozej/rss2mastodon:latest . 
+	docker build --progress=plain --target test -f $(CURDIR)/Dockerfile.distroless -t toozej/rss2mastodon:latest . 
 
 build: ## Build Docker image, including running tests
-	docker build -f $(CURDIR)/Dockerfile -t toozej/rss2mastodon:latest .
+	docker build -f $(CURDIR)/Dockerfile.distroless -t toozej/rss2mastodon:latest .
 
 get-cosign-pub-key: ## Get rss2mastodon Cosign public key from GitHub
 	test -f $(CURDIR)/rss2mastodon.pub || curl --silent https://raw.githubusercontent.com/toozej/rss2mastodon/main/rss2mastodon.pub -O
@@ -65,12 +65,6 @@ up: test build ## Run Docker Compose project with build Docker image
 
 down: ## Stop running Docker Compose project
 	docker compose -f docker-compose.yml down --remove-orphans
-
-distroless-build: ## Build Docker image using distroless as final base
-	docker build -f $(CURDIR)/Dockerfile.distroless -t toozej/rss2mastodon:distroless . 
-
-distroless-run: ## Run built Docker image using distroless as final base
-	docker run --rm --name rss2mastodon --env-file $(CURDIR)/.env toozej/rss2mastodon:distroless
 
 local-update-deps: ## Run `go get -t -u ./...` to update Go module dependencies
 	go get -t -u ./...
@@ -161,7 +155,7 @@ pre-commit-install: ## Install pre-commit hooks and necessary binaries
 	# shellcheck
 	command -v shellcheck || sudo dnf install -y ShellCheck || sudo apt install -y shellcheck
 	# checkmake
-	go install github.com/mrtazz/checkmake/cmd/checkmake@latest
+	go install github.com/checkmake/checkmake/cmd/checkmake@latest
 	# goreleaser
 	go install github.com/goreleaser/goreleaser/v2@latest
 	# syft
@@ -172,7 +166,14 @@ pre-commit-install: ## Install pre-commit hooks and necessary binaries
 	go install github.com/google/go-licenses@latest
 	# go vuln check
 	go install golang.org/x/vuln/cmd/govulncheck@latest
+	# air
+	go install github.com/air-verse/air@latest
+	# graphviz for dot
+	command -v dot || brew install graphviz || sudo apt install -y graphviz || sudo dnf install -y graphviz
 	# install and update pre-commits
+	# determine if on Debian 12 and if so use pip to install more modern pre-commit version
+	grep --silent "VERSION=\"12 (bookworm)\"" /etc/os-release && apt install -y --no-install-recommends python3-pip && python3 -m pip install --break-system-packages --upgrade pre-commit || echo "OS is not Debian 12 bookworm"
+	command -v pre-commit || brew install pre-commit || sudo dnf install -y pre-commit || sudo apt install -y pre-commit
 	pre-commit install
 	pre-commit autoupdate
 
@@ -184,20 +185,12 @@ pre-commit-run: ## Run pre-commit hooks against all files
 
 update-golang-version: ## Update to latest Golang version across the repo
 	@VERSION=`curl -s "https://go.dev/dl/?mode=json" | jq -r '.[0].version' | sed 's/go//' | cut -d '.' -f 1,2`; \
-	echo "Updating Golang to $$VERSION"; \
-	./scripts/update_golang_version.sh $$VERSION
+	$(CURDIR)/scripts/update_golang_version.sh $$VERSION
 
-docs: docs-generate docs-serve ## Generate and serve documentation
-
-docs-generate:
-	docker build -f $(CURDIR)/Dockerfile.docs -t toozej/rss2mastodon:docs . 
-	docker run --rm --name rss2mastodon-docs -v $(CURDIR):/package -v $(CURDIR)/docs:/docs toozej/rss2mastodon:docs
-
-docs-serve: ## Serve documentation on http://localhost:9000
-	docker run -d --rm --name rss2mastodon-docs-serve -p 9000:3080 -v $(CURDIR)/docs:/data thomsch98/markserv
-	$(OPENER) http://localhost:9000/docs.md
-	@echo -e "to stop docs container, run:\n"
-	@echo "docker kill rss2mastodon-docs-serve"
+docs: ## Serve Go documentation
+	@echo "Starting Go documentation server on localhost"
+	@echo "Use Ctrl+C to stop the server"
+	go doc -http
 
 clean: ## Remove any locally compiled binaries
 	rm -f $(CURDIR)/out/rss2mastodon
