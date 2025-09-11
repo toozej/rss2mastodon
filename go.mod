@@ -6,7 +6,7 @@ require github.com/spf13/viper v1.20.1
 
 require (
 	github.com/mattn/go-sqlite3 v1.14.32
-	github.com/muesli/mango-cobra v1.2.0
+	github.com/muesli/mango-cobra v1.3.0
 	github.com/muesli/roff v0.1.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.10.1
