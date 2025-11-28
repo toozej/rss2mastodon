@@ -54,7 +54,7 @@ repos:
 
   # Golang formatting, linting, security and static analysis
   - repo: https://github.com/tekwizely/pre-commit-golang
-    rev: v1.0.0-rc.2
+    rev: v1.0.0-rc.4
     hooks:
       - id: go-sec-mod
       - id: go-staticcheck-mod
@@ -74,7 +74,7 @@ repos:
 
   # lint Dockerfile
   - repo: https://github.com/hadolint/hadolint
-    rev: v2.13.1
+    rev: v2.14.0
     hooks:
       - id: hadolint-docker
         args: ["--ignore", "DL3007"]
